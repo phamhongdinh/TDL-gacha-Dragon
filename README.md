@@ -14,7 +14,7 @@ Khung dự án game 2D gacha rồng được dựng bằng Godot 4. Đây là b�
 
 1. Cài Godot 4.x.
 2. Mở Godot Project Manager, chọn **Import**.
-3. Chọn file `project.godot` trong repository.
+3. Chọn file `project.godot` trong thư mục dự án.
 4. Nhấn **Run Project**.
 
 Scene hiện tại cố ý để trống vì đây mới là khung kiến trúc.
