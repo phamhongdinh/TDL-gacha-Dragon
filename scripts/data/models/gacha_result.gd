@@ -1,4 +1,5 @@
 class_name GachaResult
 extends Resource
 
-# TODO: Kết quả quay.
+var dragons: Array[DragonInstance] = []
+var error_message: String = ""

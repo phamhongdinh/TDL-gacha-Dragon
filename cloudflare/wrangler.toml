@@ -1,0 +1,12 @@
+name = "tdl-gacha-dragon-api"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+[assets]
+directory = "../assets/textures"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "dragon_awakening_db"
+database_id = "2905b1a0-000a-4bf9-b0b3-0a7ce660755e"

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="350" viewBox="0 0 500 350">
+<defs><linearGradient id="skin" x2=".3" y2="1"><stop stop-color="#ffd4a3"/><stop offset=".55" stop-color="#e9aa89"/><stop offset="1" stop-color="#589fa7"/></linearGradient><linearGradient id="belly" x2="0" y2="1"><stop stop-color="#e9f4ce"/><stop offset="1" stop-color="#aed9bf"/></linearGradient><linearGradient id="fin" x2="0" y2="1"><stop stop-color="#528aa8"/><stop offset="1" stop-color="#a0d6da"/></linearGradient></defs>
+<ellipse cx="252" cy="322" rx="111" ry="13" fill="#071e2b" opacity=".35"/>
+<g stroke="#224b60" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+<!-- Curled tail and translucent fins. -->
+<path d="M304 264q88 38 85-37-17 27-47 8l-25-7" fill="url(#skin)"/>
+<path d="m383 239-18-35 29 2 20-18-4 39z" fill="url(#fin)"/>
+<path d="m179 244-64-17-8-45 42 14-10-48 40 28 17 48m113 18 60-25 12-47-44 19 8-51-37 35-15 45" fill="url(#fin)"/>
+<path d="m113 188 62 46m-29-77 30 69m197-50-61 58m24-75-23 66" fill="none" stroke="#9cdbd8" stroke-width="2"/>
+<!-- Pear shaped body. -->
+<path d="M197 206q-27 26-30 66-1 48 71 49 84 7 87-45-1-45-34-73z" fill="url(#skin)"/>
+<path d="M227 226q-28 19-24 57 3 27 46 27 44-2 45-29 0-36-32-54" fill="url(#belly)" stroke-width="2"/>
+<path d="m217 266 65 1m-66 17 66 1" fill="none" stroke="#7db2a8" stroke-width="2"/>
+<path d="M185 280q-35 9-24 29 7 11 42 6l12-11m80-23q38 1 34 22-3 16-34 13l-14-12" fill="url(#skin)"/>
+<path d="m170 306 2 6m12-7 2 7m122-6-1 7m12-9-1 7" stroke="#e1edcb" stroke-width="3"/>
+<!-- Little arms. -->
+<path d="M185 228q-20 15-9 29 8 8 25-5m105-27q24 17 10 31-9 7-22-5" fill="url(#skin)"/>
+<!-- Head horns and ears. -->
+<path d="m190 92-21-40-8-36 28 23 22 45m77 4 24-42 24-24-4 37-22 42" fill="#e4dfb4"/>
+<path d="m180 116-49-23 7 35 35 20m140-37 46-23-5 37-35 25" fill="url(#fin)"/>
+<!-- Oversized chibi face. -->
+<path d="M166 127q-6-64 77-66 80-6 92 64 12 72-35 96-21 13-58 12-80 0-81-62z" fill="url(#skin)"/>
+<path d="m219 73 16-24 17 20 15-15 13 21" fill="url(#fin)"/>
+<path d="M180 162q-2-31 18-32 21-2 20 29 0 25-18 26-18 0-20-23zm99-4q-1-30 18-29 20 1 20 30 0 23-20 24-18 0-18-25z" fill="#163247"/>
+<path d="M190 167q1-15 10-15 10 0 9 17-10 16-19-2zm99 0q0-16 9-16 10 1 10 16-9 17-19 0z" fill="#eeb87e" stroke="none"/>
+<ellipse cx="196" cy="142" rx="7" ry="9" fill="#fffbe9" stroke="none"/><ellipse cx="295" cy="141" rx="7" ry="9" fill="#fffbe9" stroke="none"/>
+<ellipse cx="207" cy="172" rx="3" ry="4" fill="#fffbe9" stroke="none"/><ellipse cx="306" cy="171" rx="3" ry="4" fill="#fffbe9" stroke="none"/>
+<ellipse cx="181" cy="187" rx="15" ry="7" fill="#e6a69f" opacity=".65" stroke="none"/><ellipse cx="316" cy="186" rx="14" ry="7" fill="#e6a69f" opacity=".65" stroke="none"/>
+<path d="M229 197q15 15 31-1" fill="none" stroke-width="3"/>
+<path d="m237 180 4-1m13 0 4 1" stroke-width="3"/>
+<path d="m234 93 12 13 12-14-12-7z" fill="#e3f2cd" stroke="none"/>
+<path d="m178 109 9-9m105-1 10 8" stroke="#d2f1db" stroke-width="5"/>
+</g>
+<g fill="#d4f3da"><path d="m98 119 3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/><path d="m375 100 3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/><circle cx="355" cy="279" r="3"/></g>
+</svg>

@@ -1,0 +1,493 @@
+{
+  "elements": {
+    "fire": {
+      "name": "Hỏa",
+      "catalog_names": [
+        "Hỏa"
+      ],
+      "color": "ff9764",
+      "skill": "fire_rain",
+      "passive": {
+        "name": "Huyết Hỏa",
+        "attack": 1.05
+      },
+      "counters": {}
+    },
+    "water": {
+      "name": "Thủy",
+      "catalog_names": [
+        "Thủy",
+        "Nước"
+      ],
+      "color": "6ae3e2",
+      "skill": "ice_tide",
+      "passive": {
+        "name": "Thủy Sinh",
+        "hp": 1.05
+      },
+      "counters": {}
+    },
+    "shadow": {
+      "name": "Bóng Tối",
+      "catalog_names": [
+        "Bóng Tối"
+      ],
+      "color": "bb8bfa",
+      "skill": "dark_pierce",
+      "passive": {
+        "name": "Ảnh Giáp",
+        "defense": 1.05
+      },
+      "counters": {}
+    }
+  },
+  "statuses": {
+    "frozen": {
+      "name": "Đóng băng",
+      "icon": "Băng",
+      "kind": "skip_action",
+      "remaining": 1,
+      "stacking": "ignore",
+      "expires_grants": "freeze_guard",
+      "description": "Bỏ lượt hành động kế tiếp, sau đó miễn nhiễm đến khi hoàn thành một hành động."
+    },
+    "freeze_guard": {
+      "name": "Miễn nhiễm Đóng Băng",
+      "icon": "Kháng băng",
+      "kind": "immunity",
+      "blocks": [
+        "frozen"
+      ],
+      "consume_on": "action",
+      "remaining": 1,
+      "stacking": "ignore",
+      "description": "Hết sau khi hoàn thành một hành động; bỏ lượt không tiêu hao."
+    },
+    "blind": {
+      "name": "Làm mù",
+      "icon": "Mù",
+      "kind": "miss_attack",
+      "chance": 0.5,
+      "consume_on": "attack",
+      "remaining": 1,
+      "stacking": "ignore",
+      "description": "50% hụt toàn bộ đòn tấn công kế tiếp; giữ nguyên nếu bỏ lượt."
+    },
+    "poison": {
+      "name": "Độc",
+      "icon": "Độc",
+      "kind": "dot",
+      "fraction": 0.05,
+      "remaining": 2,
+      "stacking": "refresh",
+      "description": "Mất 5% máu tối đa vào đầu lượt, còn số lượt ghi trên biểu tượng."
+    }
+  },
+  "skills": {
+    "basic": {
+      "name": "Đánh thường",
+      "kind": "attack",
+      "target": "one_enemy",
+      "multiplier": 1,
+      "cooldown": 0,
+      "effects": []
+    },
+    "ice_tide": {
+      "name": "Băng Triều",
+      "kind": "attack",
+      "target": "all_enemies",
+      "multiplier": 0.4,
+      "cooldown": 3,
+      "effects": [
+        {
+          "status": "frozen",
+          "chance": 0.35
+        }
+      ],
+      "description": "40% tấn công lên tất cả địch còn sống. Mỗi mục tiêu có 35% bị Đóng Băng."
+    },
+    "fire_rain": {
+      "name": "Hỏa Vũ",
+      "kind": "attack",
+      "target": "all_enemies",
+      "multiplier": 0.5,
+      "cooldown": 3,
+      "effects": [],
+      "description": "50% tấn công lên tất cả địch còn sống, kể cả khi chỉ còn một mục tiêu."
+    },
+    "dark_pierce": {
+      "name": "Hắc Ám Xuyên Tâm",
+      "kind": "attack",
+      "target": "one_enemy",
+      "multiplier": 1.6,
+      "cooldown": 3,
+      "effects": [
+        {
+          "status": "blind",
+          "chance": 1
+        }
+      ],
+      "description": "160% tấn công vào một địch. Nếu sống sót, mục tiêu bị Làm Mù lần tấn công kế tiếp."
+    },
+    "venom": {
+      "name": "Bào Tử Độc",
+      "kind": "attack",
+      "target": "one_enemy",
+      "multiplier": 0.6,
+      "cooldown": 3,
+      "effects": [
+        {
+          "status": "poison",
+          "chance": 1
+        }
+      ]
+    },
+    "quake": {
+      "name": "Chấn Động",
+      "kind": "attack",
+      "target": "all_enemies",
+      "multiplier": 0.85,
+      "cooldown": 3,
+      "effects": []
+    }
+  },
+  "enemies": {
+    "beetle": {
+      "name": "Bọ Giáp Đá",
+      "hp": 150,
+      "attack": 65,
+      "defense": 40,
+      "speed": 40,
+      "element": "",
+      "skill": "basic",
+      "ai": "front",
+      "immunities": [],
+      "portrait": "beetle"
+    },
+    "worm": {
+      "name": "Sâu Khoan Đất",
+      "hp": 115,
+      "attack": 60,
+      "defense": 15,
+      "speed": 85,
+      "element": "",
+      "skill": "basic",
+      "ai": "weakest",
+      "immunities": [],
+      "portrait": "worm"
+    },
+    "fungus": {
+      "name": "Nấm Độc Hang Sâu",
+      "hp": 120,
+      "attack": 40,
+      "defense": 15,
+      "speed": 55,
+      "element": "",
+      "skill": "venom",
+      "ai": "weakest",
+      "immunities": [],
+      "portrait": "fungus"
+    },
+    "elite": {
+      "name": "Thạch Giáp Địa Tâm",
+      "hp": 450,
+      "attack": 105,
+      "defense": 40,
+      "speed": 45,
+      "element": "",
+      "skill": "quake",
+      "ai": "elite",
+      "immunities": [
+        "frozen",
+        "stun"
+      ],
+      "enrage": {
+        "threshold": 0.4,
+        "multiplier": 1.2
+      },
+      "portrait": "elite"
+    }
+  },
+  "dragon_stats": {
+    "1": {
+      "hp": 330,
+      "attack": 95,
+      "defense": 30,
+      "speed": 70
+    },
+    "2": {
+      "hp": 500,
+      "attack": 145,
+      "defense": 48,
+      "speed": 82
+    },
+    "3": {
+      "hp": 700,
+      "attack": 185,
+      "defense": 65,
+      "speed": 90
+    }
+  },
+  "stages": [
+    {
+      "id": "rift_1",
+      "name": "Khe Nứt Lòng Đất",
+      "subtitle": "Tầng 1 · Dấu vết dưới long động",
+      "scale": 1,
+      "waves": [
+        [
+          "beetle",
+          "worm",
+          "fungus"
+        ],
+        [
+          "elite",
+          "worm",
+          "fungus"
+        ]
+      ],
+      "rewards": {
+        "gold": 120,
+        "food": 8,
+        "shards": 3
+      },
+      "first_bonus": {
+        "gold": 150,
+        "food": 5,
+        "shards": 2
+      }
+    },
+    {
+      "id": "rift_2",
+      "name": "Đường Hầm Tinh Thạch",
+      "subtitle": "Tầng 2 · Giáp đá thức tỉnh",
+      "scale": 1.2,
+      "waves": [
+        [
+          "beetle",
+          "worm",
+          "fungus"
+        ],
+        [
+          "elite",
+          "beetle",
+          "fungus"
+        ]
+      ],
+      "rewards": {
+        "gold": 160,
+        "food": 10,
+        "shards": 4
+      },
+      "first_bonus": {
+        "gold": 180,
+        "food": 6,
+        "shards": 3
+      }
+    },
+    {
+      "id": "rift_3",
+      "name": "Lõi Địa Tầng",
+      "subtitle": "Tầng 3 · Vết nứt cuối cùng",
+      "scale": 1.45,
+      "waves": [
+        [
+          "beetle",
+          "worm",
+          "fungus"
+        ],
+        [
+          "elite",
+          "beetle",
+          "worm"
+        ]
+      ],
+      "rewards": {
+        "gold": 200,
+        "food": 12,
+        "shards": 5
+      },
+      "first_bonus": {
+        "gold": 220,
+        "food": 8,
+        "shards": 4
+      }
+    }
+  ],
+  "chapters": [
+    {
+      "id": "rift_1",
+      "number": 1,
+      "name": "Khe Nứt Lòng Đất",
+      "hp_scale": 1,
+      "attack_scale": 1,
+      "monsters": [
+        "beetle",
+        "worm",
+        "fungus"
+      ],
+      "waves": [
+        [
+          "beetle",
+          "worm",
+          "fungus"
+        ]
+      ],
+      "rewards": {
+        "gold": 150,
+        "food": 8,
+        "shards": 3
+      },
+      "first_bonus": {
+        "gold": 100,
+        "food": 4,
+        "shards": 1
+      }
+    },
+    {
+      "id": "rift_2",
+      "number": 2,
+      "name": "Đường Hầm Tinh Thạch",
+      "hp_scale": 1.25,
+      "attack_scale": 1.15,
+      "monsters": [
+        "beetle",
+        "beetle",
+        "fungus"
+      ],
+      "waves": [
+        [
+          "beetle",
+          "beetle",
+          "fungus"
+        ]
+      ],
+      "rewards": {
+        "gold": 230,
+        "food": 11,
+        "shards": 4
+      },
+      "first_bonus": {
+        "gold": 160,
+        "food": 6,
+        "shards": 2
+      }
+    },
+    {
+      "id": "rift_3",
+      "number": 3,
+      "name": "Thạch Giáp Thức Tỉnh",
+      "hp_scale": 1.55,
+      "attack_scale": 1.35,
+      "monsters": [
+        "elite",
+        "worm",
+        "fungus"
+      ],
+      "waves": [
+        [
+          "elite",
+          "worm",
+          "fungus"
+        ]
+      ],
+      "rewards": {
+        "gold": 310,
+        "food": 14,
+        "shards": 5
+      },
+      "first_bonus": {
+        "gold": 220,
+        "food": 8,
+        "shards": 3
+      }
+    },
+    {
+      "id": "rift_4",
+      "number": 4,
+      "name": "Hang Bào Tử",
+      "hp_scale": 1.9,
+      "attack_scale": 1.6,
+      "monsters": [
+        "fungus",
+        "worm",
+        "fungus"
+      ],
+      "waves": [
+        [
+          "fungus",
+          "worm",
+          "fungus"
+        ]
+      ],
+      "rewards": {
+        "gold": 390,
+        "food": 17,
+        "shards": 6
+      },
+      "first_bonus": {
+        "gold": 280,
+        "food": 10,
+        "shards": 4
+      }
+    },
+    {
+      "id": "rift_5",
+      "number": 5,
+      "name": "Vực Đá Sâu",
+      "hp_scale": 2.35,
+      "attack_scale": 1.9,
+      "monsters": [
+        "elite",
+        "beetle",
+        "worm"
+      ],
+      "waves": [
+        [
+          "elite",
+          "beetle",
+          "worm"
+        ]
+      ],
+      "rewards": {
+        "gold": 470,
+        "food": 20,
+        "shards": 7
+      },
+      "first_bonus": {
+        "gold": 340,
+        "food": 12,
+        "shards": 5
+      }
+    },
+    {
+      "id": "rift_6",
+      "number": 6,
+      "name": "Lõi Khe Nứt",
+      "hp_scale": 2.9,
+      "attack_scale": 2.2,
+      "monsters": [
+        "elite",
+        "beetle",
+        "fungus"
+      ],
+      "waves": [
+        [
+          "elite",
+          "beetle",
+          "fungus"
+        ]
+      ],
+      "rewards": {
+        "gold": 550,
+        "food": 23,
+        "shards": 8
+      },
+      "first_bonus": {
+        "gold": 400,
+        "food": 14,
+        "shards": 6
+      }
+    }
+  ]
+}

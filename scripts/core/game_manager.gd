@@ -1,3 +1,4 @@
 extends Node
 
-# TODO: Điều phối vòng đời và trạng thái game.
+func _ready() -> void:
+	DisplayServer.window_set_title("Long Tộc Thức Tỉnh")

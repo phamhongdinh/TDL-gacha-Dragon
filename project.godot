@@ -11,6 +11,7 @@ config/features=PackedStringArray("4.3", "GL Compatibility")
 [autoload]
 GameManager="*res://scripts/core/game_manager.gd"
 SaveManager="*res://scripts/core/save_manager.gd"
+AudioManager="*res://scripts/core/audio_manager.gd"
 
 [display]
 window/size/viewport_width=1280
@@ -18,7 +19,11 @@ window/size/viewport_height=720
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
 
 [rendering]
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+
+[gui]
+theme/custom="res://resources/home_theme.tres"
