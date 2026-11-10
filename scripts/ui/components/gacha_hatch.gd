@@ -47,6 +47,7 @@ func setup(result: GachaResult, from_breeding: bool = false) -> void:
 		portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(portrait)
 		portrait.set_deferred("size", Vector2(176, 160) if amount == 10 else Vector2(460, 360))
+		DragonAnimator.attach(portrait)
 		portraits.append(portrait)
 		if not definition.is_upgrade_material():
 			rare = true
@@ -70,6 +71,7 @@ func setup(result: GachaResult, from_breeding: bool = false) -> void:
 		spotlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(spotlight)
 		spotlight.set_deferred("size", Vector2(176, 160))
+		DragonAnimator.attach(spotlight)
 	heading = _label("%d TRỨNG RỒNG · GIAO ƯỚC NGUYÊN TỐ" % amount, 25, 58)
 	caption = _label("Mỗi sắc trứng mang một sức mạnh đang chờ thức giấc.", 15, 610)
 	if breeding_reveal:

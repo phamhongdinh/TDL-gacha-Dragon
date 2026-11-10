@@ -124,3 +124,7 @@ Mở `http://127.0.0.1:8060`. Phải phục vụ toàn bộ thư mục export qu
 Kiểm thử hoạt ảnh và âm thanh: chạy `godot --headless --path . --script res://tests/gacha_integration.gd` với APPDATA trỏ tới thư mục thử riêng.
 
 Hợp thể Tam Hệ cũng hỗ trợ một rồng hai hệ + rồng một hệ còn thiếu, tỉ lệ 1%, ở cả hai thứ tự chọn. Nếu nguyên tố rồng một hệ đã nằm trong rồng hai hệ thì không đủ điều kiện.
+
+## Tham chiếu khi thêm loài rồng
+
+Xem [Hướng dẫn hình thái rồng mới](design/dragon_species_guide.md) và [ảnh người dùng cung cấp](design/references/dragon-body-types.png). Loài mới cần khác dáng và cấu trúc, không chỉ đổi màu/hệ trên cùng model.

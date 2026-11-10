@@ -206,24 +206,12 @@ var picker_summary: Control
 var picker_page := 0
 const PICKER_PAGE_SIZE := 12
 
-# Trạng thái Săn Boss Thế Giới (3 Người · Farm Vàng)
-var is_world_boss_match: bool = false
-var world_boss_session_damage: int = 0
-var world_boss_reward_claimed: bool = false
-var world_boss_reward_summary: Dictionary = {}
-var world_boss_lobby_notice: String = ""
-
 func _ready() -> void:
-    WorldBossSystem.ensure_initialized()
     battle = BattleManager.new()
     add_child(battle)
     _ensure_pk_structure()
     pk_root.visible = false
-    if WorldBossSystem.open_boss_lobby_on_enter:
-        WorldBossSystem.open_boss_lobby_on_enter = false
-        _show_world_boss_lobby()
-    else:
-        _show_chapters()
+    _show_chapters()
     resized.connect(_layout_fighters)
 
 func _ensure_pk_structure() -> void:
@@ -336,7 +324,7 @@ func _build_top_bar() -> void:
     left_avatar_frame.add_child(left_avatar)
     left_avatar.set_deferred("size", Vector2(52, 52))
 
-    var left_name := _styled_label(WorldBossSystem.current_username if is_world_boss_match else "ĐỘI CỦA BẠN", 20, Color("ffffff"))
+    var left_name := _styled_label("ĐỘI CỦA BẠN", 20, Color("ffffff"))
     left_name.position = Vector2(82, 9)
     left_name.size = Vector2(190, 28)
     left_card.add_child(left_name)
@@ -353,9 +341,9 @@ func _build_top_bar() -> void:
     left_lv.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     left_lv_badge.add_child(left_lv)
 
-    # Nút nhỏ quay về Trang chủ / Phòng Boss ở góc trái
+    # Nút nhỏ quay về Trang chủ ở góc trái
     var back_btn := Button.new()
-    back_btn.text = "< Phòng Boss" if is_world_boss_match else "< Trang chủ"
+    back_btn.text = "< Trang chủ"
     back_btn.position = Vector2(226, 37)
     back_btn.size = Vector2(92, 24)
     back_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -364,14 +352,7 @@ func _build_top_bar() -> void:
     back_btn.add_theme_stylebox_override("normal", _ornate_style(Color("143444"), Color("6c8791"), 8, 1))
     back_btn.add_theme_stylebox_override("hover", _ornate_style(Color("224b5e"), GOLD, 8, 1))
     back_btn.pressed.connect(func():
-        if is_world_boss_match:
-            if world_boss_session_damage > 0 and not match_finished:
-                match_finished = true
-                _show_world_boss_result_modal()
-            else:
-                _clear_match_ui()
-                _show_world_boss_lobby()
-        elif ResourceLoader.exists("res://scenes/main/main_menu.tscn"):
+        if ResourceLoader.exists("res://scenes/main/main_menu.tscn"):
             get_tree().change_scene_to_file("res://scenes/main/main_menu.tscn")
     )
     left_card.add_child(back_btn)
@@ -393,11 +374,7 @@ func _build_top_bar() -> void:
     crest_panel.add_theme_stylebox_override("panel", _ornate_style(Color("0f2b38"), GOLD_BRIGHT, 18, 2))
     center_box.add_child(crest_panel)
 
-    var center_title_text := "CHƯƠNG %d" % BattleCatalog.chapter(selected_stage).number
-    if is_world_boss_match:
-        var binfo := WorldBossSystem.get_boss_info()
-        center_title_text = "BOSS THẾ GIỚI · CẤP %d" % int(binfo.get("level", 1))
-    var ranked_title := _styled_label(center_title_text, 23 if is_world_boss_match else 26, Color("fff3d1"))
+    var ranked_title := _styled_label("CHƯƠNG %d" % BattleCatalog.chapter(selected_stage).number, 26, Color("fff3d1"))
     ranked_title.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     ranked_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     ranked_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -434,40 +411,23 @@ func _build_top_bar() -> void:
     right_card.add_theme_stylebox_override("panel", _ornate_style(Color("0d2734e8"), GOLD, 34, 2))
     top_hud_bar.add_child(right_card)
 
-    var right_name := _styled_label("HẮC LONG (3 NGƯỜI)" if is_world_boss_match else "QUÁI KHE NỨT", 18 if is_world_boss_match else 20, Color("ffffff"))
+    var right_name := _styled_label("QUÁI KHE NỨT", 20, Color("ffffff"))
     right_name.position = Vector2(24, 9)
     right_name.size = Vector2(222, 28)
     right_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
     right_card.add_child(right_name)
 
     var right_lv_badge := Panel.new()
-    right_lv_badge.position = Vector2(142 if is_world_boss_match else 160, 39)
-    right_lv_badge.size = Vector2(110 if is_world_boss_match else 92, 22)
+    right_lv_badge.position = Vector2(160, 39)
+    right_lv_badge.size = Vector2(92, 22)
     right_lv_badge.add_theme_stylebox_override("panel", _ornate_style(Color("091c26"), Color("9b834e"), 10, 1))
     right_card.add_child(right_lv_badge)
 
-    var right_lv := _styled_label("Tổ đội 3 người" if is_world_boss_match else "3 quái vật", 12 if is_world_boss_match else 13, GOLD_BRIGHT)
+    var right_lv := _styled_label("3 quái vật", 13, GOLD_BRIGHT)
     right_lv.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     right_lv.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     right_lv.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     right_lv_badge.add_child(right_lv)
-
-    if is_world_boss_match:
-        var cashout_btn := Button.new()
-        cashout_btn.text = "💰 Nhận Vàng"
-        cashout_btn.position = Vector2(22, 37)
-        cashout_btn.size = Vector2(110, 24)
-        cashout_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-        cashout_btn.add_theme_font_size_override("font_size", 11)
-        cashout_btn.add_theme_color_override("font_color", Color("0b202b"))
-        cashout_btn.add_theme_stylebox_override("normal", _ornate_style(GOLD_BRIGHT, GOLD, 8, 1))
-        cashout_btn.add_theme_stylebox_override("hover", _ornate_style(Color("fff4c2"), GOLD_BRIGHT, 8, 1))
-        cashout_btn.pressed.connect(func():
-            if not match_finished:
-                match_finished = true
-                _show_world_boss_result_modal()
-        )
-        right_card.add_child(cashout_btn)
 
     var right_avatar_frame := Panel.new()
     right_avatar_frame.position = Vector2(264, 3)
@@ -477,7 +437,7 @@ func _build_top_bar() -> void:
     right_card.add_child(right_avatar_frame)
 
     var right_avatar := TextureRect.new()
-    right_avatar.texture = load("res://assets/textures/enemies/elite.svg" if is_world_boss_match else "res://assets/textures/enemies/beetle.svg")
+    right_avatar.texture = load("res://assets/textures/enemies/beetle.svg")
     right_avatar.position = Vector2(5, 5)
     right_avatar.size = Vector2(52, 52)
     right_avatar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -914,19 +874,13 @@ func _perform_combat_action(actor: PkFighterSlot, skill_id: String, target_id: S
         var slot: PkFighterSlot = fighter_by_id[id]
         var damage: int = int(hp_before[id])-units[id].hp
         if damage > 0:
-            if is_world_boss_match and actor.team_side == "player" and slot.team_side == "enemy":
-                world_boss_session_damage += damage
             slot.show_floating_damage(damage,false,1.0/speed_multiplier)
             var recoil := create_tween()
             recoil.tween_property(slot,"anim_offset",Vector2(15*direction,-5),0.09/speed_multiplier)
             recoil.tween_property(slot,"anim_offset",Vector2.ZERO,0.22/speed_multiplier)
     _play_sfx("crack" if skill_id == "ice_tide" else "rare" if skill_id == "dark_pierce" else "hatch")
     _sync_units()
-    if is_world_boss_match:
-        var est_gold := WorldBossSystem.BASE_PARTICIPATION_GOLD + world_boss_session_damage * WorldBossSystem.GOLD_PER_DAMAGE
-        status_banner_label.text = "🔥 Tổng ST lên Boss: %d  ·  Thưởng tạm tính: +%d VÀNG!" % [world_boss_session_damage, est_gold]
-    else:
-        status_banner_label.text = " · ".join(battle.log_lines.slice(maxi(0,battle.log_lines.size()-4)))
+    status_banner_label.text = " · ".join(battle.log_lines.slice(maxi(0,battle.log_lines.size()-4)))
     status_banner_label.tooltip_text = "\n".join(battle.log_lines.slice(maxi(0,battle.log_lines.size()-12)))
     var back := create_tween()
     back.tween_property(actor,"anim_offset",Vector2.ZERO,0.3/speed_multiplier)
@@ -989,13 +943,6 @@ func _check_pk_match_end() -> void:
                 allies_alive += 1
             else:
                 enemies_alive += 1
-    if is_world_boss_match:
-        var boss_dead := not battle.enemies.is_empty() and battle.enemies[0].hp <= 0
-        if allies_alive > 0 and enemies_alive > 0 and not boss_dead and battle.round_number <= 8:
-            return
-        match_finished = true
-        _show_world_boss_result_modal()
-        return
     if allies_alive > 0 and enemies_alive > 0:
         return
 
@@ -1370,7 +1317,6 @@ func _change_picker_page(direction: int) -> void:
 
 func _show_chapters() -> void:
     mode = "chapters"
-    is_world_boss_match = false
     pk_root.visible = false
     if is_instance_valid(team_picker):
         remove_child(team_picker)
@@ -1382,10 +1328,6 @@ func _show_chapters() -> void:
     var back := DragonUI.button(team_picker,"< Trang chủ",Rect2(25,27,165,45))
     back.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/main/main_menu.tscn"))
     DragonUI.text(team_picker,"CHIẾN DỊCH KHE NỨT",Rect2(220,23,900,55),32,GOLD_BRIGHT)
-    var boss_btn := DragonUI.button(team_picker,"🔥 BOSS THẾ GIỚI · 3 NGƯỜI (FARM VÀNG)",Rect2(648,25,400,46),true)
-    boss_btn.pressed.connect(_show_world_boss_lobby)
-    var user_btn := DragonUI.button(team_picker,"👤 %s · %d ◈" % [WorldBossSystem.current_username, PlayerProfile.gold],Rect2(1060,25,192,46))
-    user_btn.pressed.connect(_show_world_boss_lobby)
     DragonUI.text(team_picker,"Vượt chương để mở vùng tiếp theo · Máu và tấn công của quái tăng dần",Rect2(30,90,1200,35),18,MUTED)
     var rows: Array = BattleCatalog.data().chapters
     for i in range(rows.size()):
@@ -1408,355 +1350,6 @@ func _show_chapters() -> void:
 func _choose_chapter(id: String) -> void:
     if not BattleCatalog.chapter_unlocked(id):
         return
-    is_world_boss_match = false
     selected_stage = id
     party.clear()
     _show_team_picker()
-
-# ============================================================================
-# CHẾ ĐỘ SĂN BOSS THẾ GIỚI 3 NGƯỜI (CO-OP FARM VÀNG & CLOUDFLARE LOGIN/SAVE)
-# ============================================================================
-func _show_world_boss_lobby() -> void:
-    mode = "world_boss"
-    is_world_boss_match = true
-    pk_root.visible = false
-    if is_instance_valid(team_picker):
-        remove_child(team_picker)
-        team_picker.queue_free()
-    team_picker = Control.new()
-    team_picker.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    add_child(team_picker)
-    DragonUI.panel(team_picker, Rect2(0, 0, 1280, 720), Color("091b24"))
-
-    # Tự động chọn tối đa 3 rồng mạnh nhất của người chơi nếu đội đang trống
-    var valid_party: Array[DragonInstance] = []
-    for pet in party:
-        if PlayerCollection.owned_dragons.has(pet):
-            valid_party.append(pet)
-    party = valid_party
-    if party.is_empty():
-        for pet in PlayerCollection.ordered_dragons():
-            if party.size() < 3:
-                party.append(pet)
-
-    var back_chap := DragonUI.button(team_picker, "< Chiến dịch", Rect2(24, 22, 148, 44))
-    back_chap.pressed.connect(_show_chapters)
-
-    var home_btn := DragonUI.button(team_picker, "Trang chủ", Rect2(182, 22, 126, 44))
-    home_btn.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/main/main_menu.tscn"))
-
-    var boss_info := WorldBossSystem.get_boss_info()
-    var boss_lv := int(boss_info.get("level", 1))
-    var boss_hp := int(boss_info.get("hp", 18000))
-    var boss_max_hp := maxi(1, int(boss_info.get("max_hp", 18000)))
-    var hp_pct := roundi(float(boss_hp) * 100.0 / float(boss_max_hp))
-
-    DragonUI.text(team_picker, "🔥 BOSS THẾ GIỚI · 3 NGƯỜI CÙNG ĐÁNH", Rect2(326, 18, 560, 34), 25, GOLD_BRIGHT)
-    DragonUI.text(team_picker, "Tài khoản: %s   ·   ◈ Vàng: %d   ·   ♧ Thức ăn: %d" % [WorldBossSystem.current_username, PlayerProfile.gold, PlayerProfile.food], Rect2(326, 48, 580, 24), 14, Color("79d7c6"))
-
-    # Cụm nút chuyển nhanh giữa 3 người chơi để test gameplay 3 người ngay trên 1 máy
-    DragonUI.text(team_picker, "Đổi nhanh người chơi (Test 3 người):", Rect2(24, 78, 280, 24), 13, MUTED)
-    for i in range(3):
-        var uname := "Thợ Săn %d" % (i + 1)
-        var is_active := (WorldBossSystem.current_username == uname)
-        var ubtn := DragonUI.button(team_picker, ("✓ " if is_active else "👤 ") + uname, Rect2(280 + i * 164, 72, 154, 34), is_active)
-        ubtn.pressed.connect(func():
-            var res := WorldBossSystem.login_or_register(uname, "123")
-            world_boss_lobby_notice = str(res.get("message", ""))
-            party.clear()
-            _show_world_boss_lobby()
-        )
-
-    var sim_btn := DragonUI.button(team_picker, "⚡ Cho 2 đồng đội đánh phụ", Rect2(782, 72, 246, 34), false)
-    sim_btn.pressed.connect(func():
-        var logs := WorldBossSystem.simulate_teammates_attack()
-        world_boss_lobby_notice = logs[0] if not logs.is_empty() else "Đồng đội đã tấn công Boss!"
-        _show_world_boss_lobby()
-    )
-
-    var gift_btn := DragonUI.button(team_picker, "🎁 Nhận 3 Rồng Test", Rect2(1038, 72, 216, 34), false)
-    gift_btn.pressed.connect(func():
-        world_boss_lobby_notice = WorldBossSystem.grant_starter_raid_dragons_if_needed()
-        party.clear()
-        _show_world_boss_lobby()
-    )
-
-    # --- BẢNG TRÁI: THÔNG TIN BOSS THẾ GIỚI & BẢNG XẾP HẠNG TỔ ĐỘI 3 NGƯỜI ---
-    var boss_card := DragonUI.panel(team_picker, Rect2(24, 116, 736, 578), Color("112a36"), GOLD)
-    DragonUI.portrait(boss_card, load("res://assets/textures/dragons/triple.png"), Rect2(20, 18, 170, 150))
-    DragonUI.text(boss_card, "%s · CẤP %d" % [str(boss_info.get("name", "HẮC LONG ĐỊA TÂM")), boss_lv], Rect2(206, 16, 510, 34), 24, GOLD_BRIGHT)
-    DragonUI.text(boss_card, "💰 CƠ CHẾ FARM VÀNG KHỦNG (TỔ ĐỘI 3 NGƯỜI):", Rect2(206, 52, 510, 24), 14, Color("7ef2e6"))
-    DragonUI.text(boss_card, "• Mỗi trận đánh thưởng cứng +1.500 Vàng + (Sát thương gây ra × 2 Vàng)\n• Đòn kết liễu hạ gục Boss thưởng thêm +8.000 Vàng & +30 Thức ăn!", Rect2(206, 76, 515, 44), 13, Color("edf5e9"), true)
-
-    # Thanh máu chung của Boss Thế Giới
-    DragonUI.text(boss_card, "MÁU CHUNG BOSS THẾ GIỚI:  %d / %d HP  (%d%%)" % [boss_hp, boss_max_hp, hp_pct], Rect2(206, 124, 510, 22), 14, GOLD_BRIGHT)
-    var boss_bar := ProgressBar.new()
-    boss_bar.position = Vector2(206, 148)
-    boss_bar.size = Vector2(506, 20)
-    boss_bar.max_value = boss_max_hp
-    boss_bar.value = boss_hp
-    boss_bar.show_percentage = false
-    boss_bar.add_theme_font_size_override("font_size", 1)
-    boss_bar.add_theme_stylebox_override("background", _ornate_style(Color("08151d"), Color("6c8791"), 8, 1))
-    boss_bar.add_theme_stylebox_override("fill", _ornate_style(Color("e04848"), GOLD_BRIGHT, 7, 1))
-    boss_card.add_child(boss_bar)
-
-    if boss_hp <= 0:
-        var next_boss_btn := DragonUI.button(boss_card, "🔄 Boss đã bị hạ! Triệu hồi Boss Cấp %d" % (boss_lv + 1), Rect2(206, 174, 506, 34), true)
-        next_boss_btn.pressed.connect(func():
-            WorldBossSystem.spawn_next_boss_level()
-            world_boss_lobby_notice = "Đã triệu hồi Boss Thế Giới Cấp %d!" % (boss_lv + 1)
-            _show_world_boss_lobby()
-        )
-
-    # Bảng 3 người chơi cùng tham gia đánh Boss
-    DragonUI.text(boss_card, "TỔ ĐỘI 3 NGƯỜI THAM GIA SĂN BOSS (%d / 3 NGƯỜI)" % mini(3, boss_info.get("participants", []).size()), Rect2(20, 212, 690, 28), 18, GOLD)
-    var participants: Array = boss_info.get("participants", [])
-    for i in range(3):
-        var row_y := 246 + i * 68
-        var p_data: Dictionary = participants[i] if i < participants.size() else {"username": "Đang chờ người chơi...", "damage": 0, "attacks": 0, "gold_earned": 0}
-        var p_name := str(p_data.get("username", "Trống"))
-        var is_me := (p_name == WorldBossSystem.current_username)
-        var row_panel := DragonUI.panel(boss_card, Rect2(20, row_y, 696, 60), Color("1a3d4c") if is_me else Color("0d222c"), GOLD_BRIGHT if is_me else Color("3b5966"))
-        var p_dmg := int(p_data.get("damage", 0))
-        var p_atk := int(p_data.get("attacks", 0))
-        var p_gold := int(p_data.get("gold_earned", 0))
-        var share_pct := roundi(float(p_dmg) * 100.0 / float(boss_max_hp))
-        DragonUI.text(row_panel, "#%d  %s%s" % [i + 1, p_name, "  (Đang chọn)" if is_me else ""], Rect2(16, 8, 310, 24), 16, GOLD_BRIGHT if is_me else Color.WHITE)
-        DragonUI.text(row_panel, "Số trận: %d   ·   Sát thương đóng góp: %d (%d%% HP Boss)" % [p_atk, p_dmg, share_pct], Rect2(16, 32, 430, 22), 13, MUTED)
-        DragonUI.text(row_panel, "💰 +%d Vàng" % p_gold, Rect2(480, 16, 198, 28), 17, GOLD_BRIGHT).horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-
-    # Nhật ký chiến trường 3 người
-    DragonUI.text(boss_card, "NHẬT KÝ SĂN BOSS GẦN ĐÂY:", Rect2(20, 458, 400, 24), 14, GOLD)
-    var logs: Array = boss_info.get("recent_logs", [])
-    var log_text := "\n".join(logs.slice(0, 3)) if not logs.is_empty() else "Chưa có lượt tấn công nào."
-    DragonUI.text(boss_card, log_text, Rect2(20, 484, 696, 62), 12, MUTED, true)
-    if not world_boss_lobby_notice.is_empty():
-        DragonUI.text(boss_card, "✦ " + world_boss_lobby_notice, Rect2(20, 548, 696, 24), 13, Color("7ef2e6"))
-
-    # --- BẢNG PHẢI: CHỌN ĐỘI RỒNG (3 RỒNG) & VÀO ĐÁNH BOSS ---
-    var team_card := DragonUI.panel(team_picker, Rect2(776, 116, 480, 578), Color("112a36"), Color("4c6975"))
-    DragonUI.text(team_card, "ĐỘI RỒNG CỦA BẠN (%d / 3)" % party.size(), Rect2(20, 16, 440, 30), 20, GOLD_BRIGHT)
-    DragonUI.text(team_card, "Chọn tối đa 3 rồng để vào vây đánh Hắc Long Địa Tâm:", Rect2(20, 46, 440, 22), 13, MUTED)
-
-    var pet_scroll := ScrollContainer.new()
-    pet_scroll.position = Vector2(18, 76)
-    pet_scroll.size = Vector2(444, 412)
-    team_card.add_child(pet_scroll)
-
-    var pet_grid := GridContainer.new()
-    pet_grid.columns = 2
-    pet_grid.add_theme_constant_override("h_separation", 12)
-    pet_grid.add_theme_constant_override("v_separation", 12)
-    pet_scroll.add_child(pet_grid)
-
-    var owned := PlayerCollection.ordered_dragons()
-    for instance in owned.slice(0, 12):
-        var unit := BattleCatalog.dragon(instance)
-        var pcard := Panel.new()
-        pcard.custom_minimum_size = Vector2(208, 190)
-        pcard.add_theme_stylebox_override("panel", DragonUI.style(Color("1b3847"), GOLD_BRIGHT if party.has(instance) else Color("43616d")))
-        pet_grid.add_child(pcard)
-        DragonUI.portrait(pcard, unit.portrait, Rect2(24, 4, 160, 102))
-        DragonUI.text(pcard, ("★ " if instance.favorite else "") + unit.display_name, Rect2(10, 108, 188, 22), 13)
-        DragonUI.text(pcard, "Cấp %d · Công %d" % [instance.level, roundi(unit.attack)], Rect2(10, 130, 188, 20), 12, MUTED)
-        var tbtn := DragonUI.button(pcard, "Bỏ chọn" if party.has(instance) else "Chọn rồng", Rect2(12, 152, 184, 30), party.has(instance))
-        tbtn.disabled = not party.has(instance) and party.size() >= 3
-        tbtn.pressed.connect(func():
-            if party.has(instance):
-                party.erase(instance)
-            elif party.size() < 3:
-                party.append(instance)
-            _show_world_boss_lobby()
-        )
-
-    if owned.is_empty():
-        DragonUI.text(team_card, "Tài khoản này chưa có rồng.\nBấm nút '🎁 Nhận 3 Rồng Test' phía trên\nđể nhận ngay 3 rồng vào đánh Boss!", Rect2(32, 160, 410, 110), 16, GOLD, true)
-
-    var fight_btn := DragonUI.button(team_card, "⚔ VÀO ĐÁNH BOSS THẾ GIỚI (FARM VÀNG)", Rect2(20, 506, 440, 54), true)
-    fight_btn.disabled = party.is_empty()
-    fight_btn.pressed.connect(_start_world_boss_match)
-
-func _start_world_boss_match() -> void:
-    if party.is_empty():
-        WorldBossSystem.grant_starter_raid_dragons_if_needed()
-        for pet in PlayerCollection.ordered_dragons():
-            if party.size() < 3:
-                party.append(pet)
-    if party.is_empty():
-        return
-    var boss_info := WorldBossSystem.get_boss_info()
-    if int(boss_info.get("hp", 0)) <= 0:
-        boss_info = WorldBossSystem.spawn_next_boss_level()
-
-    if is_instance_valid(team_picker):
-        team_picker.queue_free()
-        team_picker = null
-
-    is_world_boss_match = true
-    world_boss_session_damage = 0
-    world_boss_reward_claimed = false
-    world_boss_reward_summary.clear()
-
-    battle.players.clear()
-    battle.enemies.clear()
-    battle.queue.clear()
-    battle.log_lines.clear()
-    battle.stage = {
-        "id": "world_boss",
-        "number": int(boss_info.get("level", 1)),
-        "name": str(boss_info.get("name", "HẮC LONG ĐỊA TÂM")),
-        "rewards": {"gold": 1500, "food": 12, "shards": 4},
-        "first_bonus": {"gold": 0, "food": 0, "shards": 0},
-        "waves": [["elite", "beetle", "fungus"]]
-    }
-    battle.rewards_claimed = false
-    battle.rewards.clear()
-    battle.active = null
-    battle.wave = 0
-    battle.round_number = 0
-    battle.phase = "battle"
-    battle.rng.randomize()
-    units.clear()
-    roster.clear()
-
-    for i in range(party.size()):
-        var unit := BattleCatalog.dragon(party[i])
-        battle.players.append(unit)
-        units[unit.id] = unit
-        _add_roster_entry(unit, DEFAULT_PK_ROSTER[i], party[i].species_id)
-
-    # Tạo Boss Thế Giới ở vị trí trung tâm đội địch + 2 Hộ Vệ
-    var boss_lv := int(boss_info.get("level", 1))
-    var boss_unit := BattleCatalog.enemy("elite", 0, 0, 1.0 + 0.25 * (boss_lv - 1))
-    boss_unit.id = "world_boss_main"
-    boss_unit.display_name = "%s (Cấp %d)" % [str(boss_info.get("name", "HẮC LONG ĐỊA TÂM")), boss_lv]
-    boss_unit.max_hp = int(boss_info.get("max_hp", 18000))
-    boss_unit.hp = maxi(1, int(boss_info.get("hp", 18000)))
-    boss_unit.attack = 95.0 * (1.0 + 0.15 * (boss_lv - 1))
-    boss_unit.defense = 25.0
-    boss_unit.speed = 68
-    battle.enemies.append(boss_unit)
-    units[boss_unit.id] = boss_unit
-
-    var boss_entry: Dictionary = DEFAULT_PK_ROSTER[3].duplicate(true)
-    boss_entry.id = boss_unit.id
-    boss_entry.name = boss_unit.display_name
-    boss_entry.side = "enemy"
-    boss_entry.element = "shadow"
-    boss_entry.texture_path = "res://assets/textures/dragons/triple.png"
-    boss_entry.max_hp = boss_unit.max_hp
-    boss_entry.hp = boss_unit.hp
-    boss_entry.attack = boss_unit.attack
-    boss_entry.defense = boss_unit.defense
-    boss_entry.speed = boss_unit.speed
-    boss_entry.pos_ratio = Vector2(0.545, 0.245)
-    boss_entry.slot_size = Vector2(272, 240)
-    boss_entry.sprite_size = Vector2(246, 202)
-    boss_entry.flip_h = true
-    roster.append(boss_entry)
-
-    var guard_types := ["beetle", "fungus"]
-    for g in range(guard_types.size()):
-        var g_unit := BattleCatalog.enemy(guard_types[g], g + 1, 0, 1.1 + 0.2 * (boss_lv - 1))
-        g_unit.display_name = "Hộ Vệ Long Tinh %d" % (g + 1)
-        battle.enemies.append(g_unit)
-        units[g_unit.id] = g_unit
-        var g_entry: Dictionary = DEFAULT_PK_ROSTER[4 + g].duplicate(true)
-        g_entry.id = g_unit.id
-        g_entry.name = g_unit.display_name
-        g_entry.side = "enemy"
-        g_entry.element = "earth" if g == 0 else "poison"
-        g_entry.texture_path = "res://assets/textures/enemies/%s.svg" % guard_types[g]
-        g_entry.max_hp = g_unit.max_hp
-        g_entry.hp = g_unit.hp
-        g_entry.attack = g_unit.attack
-        g_entry.defense = g_unit.defense
-        g_entry.speed = g_unit.speed
-        g_entry.flip_h = false
-        roster.append(g_entry)
-
-    battle._new_round()
-    mode = "pk"
-    match_finished = false
-    action_in_progress = false
-    match_seconds = 0
-    turn_number = 1
-    current_turn_index = 0
-    selected_fighter_id = battle.players[0].id
-    active_fighter_id = selected_fighter_id
-    auto_battle = false
-    step_cooldown = 0.3
-    pk_root.visible = true
-    _build_pk_screen()
-    turn_order_ids.sort_custom(func(a: String, b: String): return units[a].speed > units[b].speed if units[a].speed != units[b].speed else a < b)
-    _build_turn_order_bar()
-    _sync_units()
-    status_banner_label.text = "🔥 Săn Boss Thế Giới (3 Người): Gây sát thương càng lớn, Vàng thưởng càng nhiều!"
-
-func _show_world_boss_result_modal() -> void:
-    if is_instance_valid(result_modal):
-        pk_root.remove_child(result_modal)
-        result_modal.queue_free()
-
-    if not world_boss_reward_claimed:
-        world_boss_reward_claimed = true
-        world_boss_reward_summary = WorldBossSystem.record_boss_attack(WorldBossSystem.current_username, maxi(250, world_boss_session_damage))
-        WorldBossSystem.sync_with_cloudflare(self, "boss/attack", {
-            "username": WorldBossSystem.current_username,
-            "damage": int(world_boss_reward_summary.get("damage", 0)),
-            "save_data": WorldBossSystem._snapshot_current_player_data()
-        })
-
-    var dmg := int(world_boss_reward_summary.get("damage", world_boss_session_damage))
-    var gold_earned := int(world_boss_reward_summary.get("gold", 1500))
-    var food_earned := int(world_boss_reward_summary.get("food", 12))
-    var shards_earned := int(world_boss_reward_summary.get("shards", 4))
-    var boss_defeated := bool(world_boss_reward_summary.get("boss_defeated", false))
-    var boss_hp_left := int(world_boss_reward_summary.get("boss_hp", 0))
-    var boss_max := int(world_boss_reward_summary.get("boss_max_hp", 18000))
-
-    result_modal = Control.new()
-    result_modal.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    result_modal.z_index = 30
-    pk_root.add_child(result_modal)
-
-    var shade := ColorRect.new()
-    shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    shade.color = Color(0.02, 0.05, 0.09, 0.90)
-    result_modal.add_child(shade)
-
-    var card := DragonUI.panel(result_modal, Rect2(260, 95, 760, 530), Color("102b39"), GOLD_BRIGHT)
-    DragonUI.text(card, "🔥 HẠ GỤC BOSS THẾ GIỚI!" if boss_defeated else "💰 TỔNG KẾT LƯỢT SĂN BOSS THẾ GIỚI", Rect2(30, 22, 700, 44), 28, GOLD_BRIGHT).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    DragonUI.text(card, "Người chơi: %s   ·   Sát thương gây ra trận này: %d" % [WorldBossSystem.current_username, dmg], Rect2(30, 72, 700, 28), 18, Color("7ef2e6")).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    DragonUI.text(card, "Máu chung của Boss Thế Giới còn lại: %d / %d HP" % [boss_hp_left, boss_max], Rect2(30, 104, 700, 26), 16, MUTED).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-
-    var reward_box := DragonUI.panel(card, Rect2(45, 142, 670, 110), Color("193c49"), GOLD)
-    DragonUI.text(reward_box, "PHẦN THƯỞNG FARM VÀNG ĐÃ CỘNG VÀO TÀI KHOẢN:", Rect2(20, 12, 630, 24), 15, GOLD).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    DragonUI.text(reward_box, "+%d VÀNG   ·   +%d THỨC ĂN   ·   +%d MẢNH TINH THỂ" % [gold_earned, food_earned, shards_earned], Rect2(20, 42, 630, 34), 23, GOLD_BRIGHT).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    DragonUI.text(reward_box, "Tổng Vàng hiện tại của %s: %d ◈ (Đã tự động lưu data)" % [WorldBossSystem.current_username, PlayerProfile.gold], Rect2(20, 78, 630, 24), 14, Color("b5d29b")).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-
-    # Hiển thị đóng góp của cả 3 người chơi trong phòng
-    DragonUI.text(card, "ĐÓNG GÓP CỦA TỔ ĐỘI 3 NGƯỜI HIỆN TẠI:", Rect2(45, 266, 670, 24), 15, GOLD)
-    var boss_info := WorldBossSystem.get_boss_info()
-    var parts: Array = boss_info.get("participants", [])
-    for i in range(mini(3, parts.size())):
-        var p: Dictionary = parts[i]
-        DragonUI.text(card, "#%d  %s  —  Tổng sát thương: %d  —  Tổng Vàng đã farm: +%d ◈" % [
-            i + 1,
-            str(p.get("username", "")),
-            int(p.get("damage", 0)),
-            int(p.get("gold_earned", 0))
-        ], Rect2(55, 296 + i * 32, 650, 26), 15, Color.WHITE)
-
-    var lobby_btn := DragonUI.button(card, "Về Phòng Boss (3 Người)", Rect2(95, 435, 265, 54))
-    lobby_btn.pressed.connect(func():
-        _clear_match_ui()
-        _show_world_boss_lobby()
-    )
-
-    var again_btn := DragonUI.button(card, "⚔ Đánh tiếp lượt nữa", Rect2(400, 435, 265, 54), true)
-    again_btn.pressed.connect(func():
-        _clear_match_ui()
-        _start_world_boss_match()
-    )

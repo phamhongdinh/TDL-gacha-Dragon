@@ -217,6 +217,7 @@ func _show_results(result: GachaResult) -> void:
 		portrait.size = Vector2(184, 112)
 		card.add_child(portrait)
 		portrait.set_deferred("size", Vector2(184, 112))
+		DragonAnimator.attach(portrait)
 		var name_label := _text(definition.display_name, Rect2(x + 6, y + 121, 204, 27), 16, definition.accent)
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		name_label.reparent(result_overlay)

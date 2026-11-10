@@ -159,6 +159,7 @@ func _build_grid(owned_only: bool) -> void:
 		var portrait := TextureRect.new()
 		portrait.texture = definition.portrait
 		portrait.custom_minimum_size = Vector2(0, 135)
+		DragonAnimator.attach(portrait)
 		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		column.add_child(portrait)
@@ -168,6 +169,9 @@ func _build_grid(owned_only: bool) -> void:
 		var description := _label(definition.description, 12, MUTED)
 		description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		column.add_child(description)
+		var preview := _button("Xem chuyển động")
+		preview.pressed.connect(_preview_animation.bind(definition))
+		column.add_child(preview)
 
 func _build_owned_grid() -> void:
 	var ordered := PlayerCollection.ordered_dragons()
@@ -206,6 +210,7 @@ func _build_owned_grid() -> void:
 		var portrait := TextureRect.new()
 		portrait.texture = definition.portrait
 		portrait.custom_minimum_size = Vector2(0,110)
+		DragonAnimator.attach(portrait)
 		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		column.add_child(portrait)
@@ -281,3 +286,25 @@ func _confirm_material_sale() -> void:
 	)
 	dialog.canceled.connect(dialog.queue_free)
 	dialog.popup_centered(Vector2i(570,200))
+
+func _preview_animation(definition: DragonDefinition) -> void:
+	var overlay := Control.new()
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.z_index = 30
+	add_child(overlay)
+	var shade := ColorRect.new()
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.color = Color(0.02,0.05,0.08,0.92)
+	overlay.add_child(shade)
+	DragonUI.panel(overlay,Rect2(285,45,710,630),Color("122f3c"),GOLD)
+	DragonUI.text(overlay,definition.display_name,Rect2(320,62,550,45),28,GOLD)
+	var portrait := DragonUI.portrait(overlay,definition.portrait,Rect2(365,105,550,430))
+	var animator := DragonAnimator.attach(portrait)
+	animator.enable_sleep(true)
+	DragonUI.text(overlay,"15 giây không thao tác: nằm ngủ · Chạm hoặc bấm phím để đánh thức",Rect2(315,555,650,34),14,MUTED,true)
+	var sleep := DragonUI.button(overlay,"Thử nằm ngủ",Rect2(320,607,260,45),true)
+	sleep.pressed.connect(animator.rest_now)
+	var wake_button := DragonUI.button(overlay,"Đánh thức",Rect2(610,607,250,45))
+	wake_button.pressed.connect(animator.wake)
+	var close := DragonUI.button(overlay,"Đóng",Rect2(870,63,95,40))
+	close.pressed.connect(overlay.queue_free)

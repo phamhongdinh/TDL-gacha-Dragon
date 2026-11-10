@@ -93,6 +93,7 @@ func _build_nodes(data: Dictionary) -> void:
 	dragon_sprite.size = sprite_size
 	visual_root.add_child(dragon_sprite)
 	dragon_sprite.set_deferred("size", sprite_size)
+	DragonAnimator.attach(dragon_sprite, bob_phase)
 
 	# 2. Thanh HP và biểu tượng hệ phía trên đầu rồng
 	hud_holder = Control.new()

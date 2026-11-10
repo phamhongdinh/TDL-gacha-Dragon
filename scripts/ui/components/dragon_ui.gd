@@ -52,7 +52,9 @@ static func portrait(parent: Node, texture: Texture2D, rect: Rect2) -> TextureRe
 	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	image.texture = texture
 	image.position = rect.position
+	image.size = rect.size
 	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(image)
 	image.set_deferred("size", rect.size)
+	DragonAnimator.attach(image)
 	return image
